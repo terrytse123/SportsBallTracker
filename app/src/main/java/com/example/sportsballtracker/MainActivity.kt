@@ -1,9 +1,14 @@
 package com.example.sportsballtracker
 
 import android.Manifest
+import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,7 +21,6 @@ import com.example.sportsballtracker.databinding.ActivityMainBinding
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
-import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -212,15 +216,28 @@ class MainActivity : AppCompatActivity() {
 
     private fun takePhoto() {
         val imageCapture = imageCapture ?: return
-        val photoFile = File(getExternalFilesDir(null), "photo_${System.currentTimeMillis()}.jpg")
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+
+        val name = "SportsBall_${System.currentTimeMillis()}.jpg"
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/SportsBallTracker")
+            }
+        }
+
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(
+            contentResolver,
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            contentValues
+        ).build()
 
         imageCapture.takePicture(
             outputOptions,
             ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    Toast.makeText(this@MainActivity, "照片已儲存", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "照片已存到相簿", Toast.LENGTH_SHORT).show()
                 }
                 override fun onError(exception: ImageCaptureException) {
                     Log.e("SportsBallTracker", "Photo capture failed", exception)
@@ -257,12 +274,23 @@ class MainActivity : AppCompatActivity() {
 
     private fun startRecording() {
         val videoCapture = videoCapture ?: return
-        val outputOptions = FileOutputOptions.Builder(
-            java.io.File(getExternalFilesDir(null), "ball_track_${System.currentTimeMillis()}.mp4")
-        ).build()
+
+        val name = "SportsBall_${System.currentTimeMillis()}.mp4"
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+            put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_MOVIES + "/SportsBallTracker")
+            }
+        }
+
+        val mediaStoreOutput = MediaStoreOutputOptions.Builder(
+            contentResolver,
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        ).setContentValues(contentValues).build()
 
         recording = videoCapture.output
-            .prepareRecording(this, outputOptions)
+            .prepareRecording(this, mediaStoreOutput)
             .withAudioEnabled()
             .start(ContextCompat.getMainExecutor(this)) { event ->
                 when (event) {
@@ -275,7 +303,9 @@ class MainActivity : AppCompatActivity() {
                         isRecording = false
                         binding.shutterButton.setBackgroundResource(R.drawable.shutter_circle)
                         if (!event.hasError()) {
-                            Toast.makeText(this, "錄影已儲存", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "影片已存到相簿", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this, "錄影失敗", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
