@@ -16,6 +16,7 @@ import com.example.sportsballtracker.databinding.ActivityMainBinding
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
+import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -28,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     private var isDualMode = false
     private var isRecording = false
     private var videoCapture: VideoCapture<Recorder>? = null
+    private var imageCapture: ImageCapture? = null
     private var recording: Recording? = null
 
     private val objectDetector by lazy {
@@ -81,6 +83,10 @@ class MainActivity : AppCompatActivity() {
             if (isRecording) stopRecording() else startRecording()
         }
 
+        binding.btnPhoto.setOnClickListener {
+            takePhoto()
+        }
+
         binding.btnEditor.setOnClickListener {
             startActivity(Intent(this, VideoEditorActivity::class.java))
         }
@@ -105,6 +111,10 @@ class MainActivity : AppCompatActivity() {
         val preview = Preview.Builder().build().also {
             it.setSurfaceProvider(binding.previewView.surfaceProvider)
         }
+
+        imageCapture = ImageCapture.Builder()
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+            .build()
 
         val recorder = Recorder.Builder()
             .setQualitySelector(QualitySelector.from(Quality.HD))
@@ -135,6 +145,7 @@ class MainActivity : AppCompatActivity() {
                     val useCaseGroup = UseCaseGroup.Builder()
                         .addUseCase(backPreview)
                         .addUseCase(videoCapture!!)
+                        .addUseCase(imageCapture!!)
                         .addUseCase(imageAnalysis)
                         .build()
 
@@ -161,8 +172,42 @@ class MainActivity : AppCompatActivity() {
 
     private fun fallbackToSingleCamera(provider: ProcessCameraProvider, preview: Preview, analysis: ImageAnalysis) {
         val selector = if (isBackCamera) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
-        provider.bindToLifecycle(this, selector, preview, analysis, videoCapture)
+        provider.bindToLifecycle(this, selector, preview, analysis, videoCapture, imageCapture)
         binding.statusText.text = if (isBackCamera) "後鏡頭" else "前鏡頭"
+    }
+
+    private fun takePhoto() {
+        val imageCapture = imageCapture ?: return
+
+        val photoFile = File(
+            getExternalFilesDir(null),
+            "photo_${System.currentTimeMillis()}.jpg"
+        )
+
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+
+        imageCapture.takePicture(
+            outputOptions,
+            ContextCompat.getMainExecutor(this),
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "照片已儲存",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                override fun onError(exception: ImageCaptureException) {
+                    Log.e("SportsBallTracker", "Photo capture failed", exception)
+                    Toast.makeText(
+                        this@MainActivity,
+                        "拍照失敗",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        )
     }
 
     private inner class ObjectAnalyzer : ImageAnalysis.Analyzer {
