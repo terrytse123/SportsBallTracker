@@ -18,11 +18,11 @@
     <!-- Front camera PiP -->
     <androidx.camera.view.PreviewView
         android:id="@+id/previewViewFront"
-        android:layout_width="110dp"
-        android:layout_height="150dp"
+        android:layout_width="100dp"
+        android:layout_height="140dp"
         android:layout_margin="12dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         android:visibility="gone" />
 
     <!-- Tracking overlay -->
@@ -35,7 +35,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Status text -->
+    <!-- Status text (top left) -->
     <TextView
         android:id="@+id/statusText"
         android:layout_width="wrap_content"
@@ -50,159 +50,129 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_margin="12dp" />
 
-    <!-- Controls overlay -->
+    <!-- Right side controls -->
     <LinearLayout
         android:id="@+id/controlsPanel"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:gravity="center_horizontal"
         android:background="#66000000"
-        android:paddingTop="12dp"
-        android:paddingBottom="16dp"
+        android:padding="12dp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="8dp">
 
-        <!-- Mode selector -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- Mode -->
+        <TextView
+            android:id="@+id/modeVideo"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="8dp">
+            android:text="錄影"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:background="@drawable/mode_selected_bg"
+            android:layout_marginBottom="4dp" />
 
-            <TextView
-                android:id="@+id/modePhoto"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="相片"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="6dp" />
-
-            <TextView
-                android:id="@+id/modeVideo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="錄影"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="6dp"
-                android:background="@drawable/mode_selected_bg" />
-        </LinearLayout>
-
-        <!-- Main controls -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/modePhoto"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="24dp">
+            android:text="相片"
+            android:textColor="#CCCCCC"
+            android:textSize="12sp"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="12dp" />
 
-            <!-- Left: Editor button -->
-            <TextView
-                android:id="@+id/btnEditor"
-                android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:background="@drawable/circle_dark"
-                android:gravity="center"
-                android:text="📁"
-                android:textSize="22sp"
-                android:textColor="#FFFFFF"
-                android:clickable="true"
-                android:focusable="true" />
+        <!-- Shutter -->
+        <FrameLayout
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginBottom="12dp">
 
             <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
-
-            <!-- Center shutter -->
-            <FrameLayout
-                android:layout_width="76dp"
-                android:layout_height="76dp">
-
-                <View
-                    android:id="@+id/shutterRing"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/shutter_ring" />
-
-                <View
-                    android:id="@+id/shutterButton"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:layout_gravity="center"
-                    android:background="@drawable/shutter_circle"
-                    android:clickable="true"
-                    android:focusable="true" />
-            </FrameLayout>
+                android:id="@+id/shutterRing"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/shutter_ring" />
 
             <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
-
-            <!-- Right: Switch camera -->
-            <TextView
-                android:id="@+id/btnSwitchCamera"
-                android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:background="@drawable/circle_dark"
-                android:gravity="center"
-                android:text="🔄"
-                android:textSize="22sp"
-                android:textColor="#FFFFFF"
+                android:id="@+id/shutterButton"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="center"
+                android:background="@drawable/shutter_circle"
                 android:clickable="true"
                 android:focusable="true" />
-        </LinearLayout>
+        </FrameLayout>
 
-        <!-- Secondary buttons -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
+        <!-- Switch camera -->
+        <TextView
+            android:id="@+id/btnSwitchCamera"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/circle_dark"
             android:gravity="center"
-            android:layout_marginTop="6dp">
+            android:text="🔄"
+            android:textSize="20sp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="8dp" />
 
-            <TextView
-                android:id="@+id/btnDualCamera"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="雙鏡頭"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"
-                android:clickable="true"
-                android:focusable="true" />
+        <!-- Dual camera -->
+        <TextView
+            android:id="@+id/btnDualCamera"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/circle_dark"
+            android:gravity="center"
+            android:text="雙"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="8dp" />
 
-            <TextView
-                android:id="@+id/btnPhoto"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="拍照"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"
-                android:clickable="true"
-                android:focusable="true" />
+        <!-- Editor -->
+        <TextView
+            android:id="@+id/btnEditor"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/circle_dark"
+            android:gravity="center"
+            android:text="📁"
+            android:textSize="18sp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="8dp" />
 
-            <TextView
-                android:id="@+id/btnRecord"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="錄影"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"
-                android:clickable="true"
-                android:focusable="true" />
-        </LinearLayout>
+        <!-- Photo / Record shortcuts -->
+        <TextView
+            android:id="@+id/btnPhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="拍照"
+            android:textColor="#FFFFFF"
+            android:textSize="11sp"
+            android:padding="6dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/btnRecord"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="錄影"
+            android:textColor="#FFFFFF"
+            android:textSize="11sp"
+            android:padding="6dp"
+            android:clickable="true"
+            android:focusable="true" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
