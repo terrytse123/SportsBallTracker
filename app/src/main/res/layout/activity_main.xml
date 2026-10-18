@@ -25,7 +25,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:visibility="gone" />
 
-    <!-- Tracking overlay (full screen) -->
+    <!-- Tracking overlay -->
     <com.example.sportsballtracker.TrackingOverlayView
         android:id="@+id/trackingOverlay"
         android:layout_width="0dp"
@@ -35,7 +35,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Status text (top left) -->
+    <!-- Status text -->
     <TextView
         android:id="@+id/statusText"
         android:layout_width="wrap_content"
@@ -50,7 +50,7 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_margin="12dp" />
 
-    <!-- Transparent overlay controls -->
+    <!-- Controls overlay -->
     <LinearLayout
         android:id="@+id/controlsPanel"
         android:layout_width="0dp"
@@ -93,31 +93,33 @@
                 android:background="@drawable/mode_selected_bg" />
         </LinearLayout>
 
-        <!-- Main controls row -->
+        <!-- Main controls -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="20dp">
+            android:paddingHorizontal="24dp">
 
-            <com.google.android.material.button.MaterialButton
+            <!-- Left: Editor button -->
+            <TextView
                 android:id="@+id/btnEditor"
-                style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:backgroundTint="#CC000000"
-                app:icon="@android:drawable/ic_menu_gallery"
-                app:iconTint="#FFFFFF"
-                app:iconSize="22dp"
-                android:contentDescription="後期製作" />
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:background="@drawable/circle_dark"
+                android:gravity="center"
+                android:text="📁"
+                android:textSize="22sp"
+                android:textColor="#FFFFFF"
+                android:clickable="true"
+                android:focusable="true" />
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1" />
 
-            <!-- Big shutter -->
+            <!-- Center shutter -->
             <FrameLayout
                 android:layout_width="76dp"
                 android:layout_height="76dp">
@@ -133,7 +135,9 @@
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:layout_gravity="center"
-                    android:background="@drawable/shutter_circle" />
+                    android:background="@drawable/shutter_circle"
+                    android:clickable="true"
+                    android:focusable="true" />
             </FrameLayout>
 
             <View
@@ -141,52 +145,63 @@
                 android:layout_height="1dp"
                 android:layout_weight="1" />
 
-            <com.google.android.material.button.MaterialButton
+            <!-- Right: Switch camera -->
+            <TextView
                 android:id="@+id/btnSwitchCamera"
-                style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:backgroundTint="#CC000000"
-                app:icon="@android:drawable/ic_menu_rotate"
-                app:iconTint="#FFFFFF"
-                app:iconSize="22dp"
-                android:contentDescription="切換鏡頭" />
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:background="@drawable/circle_dark"
+                android:gravity="center"
+                android:text="🔄"
+                android:textSize="22sp"
+                android:textColor="#FFFFFF"
+                android:clickable="true"
+                android:focusable="true" />
         </LinearLayout>
 
-        <!-- Secondary text buttons -->
+        <!-- Secondary buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginTop="4dp">
+            android:layout_marginTop="6dp">
 
-            <com.google.android.material.button.MaterialButton
+            <TextView
                 android:id="@+id/btnDualCamera"
-                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
-                android:layout_height="32dp"
+                android:layout_height="wrap_content"
                 android:text="雙鏡頭"
-                android:textSize="12sp"
-                android:textColor="#FFFFFF" />
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:clickable="true"
+                android:focusable="true" />
 
-            <com.google.android.material.button.MaterialButton
+            <TextView
                 android:id="@+id/btnPhoto"
-                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
-                android:layout_height="32dp"
+                android:layout_height="wrap_content"
                 android:text="拍照"
-                android:textSize="12sp"
-                android:textColor="#FFFFFF" />
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:clickable="true"
+                android:focusable="true" />
 
-            <com.google.android.material.button.MaterialButton
+            <TextView
                 android:id="@+id/btnRecord"
-                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
-                android:layout_height="32dp"
+                android:layout_height="wrap_content"
                 android:text="錄影"
-                android:textSize="12sp"
-                android:textColor="#FFFFFF" />
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:clickable="true"
+                android:focusable="true" />
         </LinearLayout>
     </LinearLayout>
 
