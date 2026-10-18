@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private var isBackCamera = true
     private var isDualMode = false
     private var isRecording = false
+    private var isVideoMode = true
     private var videoCapture: VideoCapture<Recorder>? = null
     private var imageCapture: ImageCapture? = null
     private var recording: Recording? = null
@@ -67,6 +68,23 @@ class MainActivity : AppCompatActivity() {
             ))
         }
 
+        binding.shutterButton.setOnClickListener {
+            if (isVideoMode) {
+                if (isRecording) stopRecording() else startRecording()
+            } else {
+                takePhoto()
+            }
+        }
+
+        binding.modePhoto.setOnClickListener {
+            isVideoMode = false
+            updateModeUI()
+        }
+        binding.modeVideo.setOnClickListener {
+            isVideoMode = true
+            updateModeUI()
+        }
+
         binding.btnSwitchCamera.setOnClickListener {
             isBackCamera = !isBackCamera
             startCamera()
@@ -89,6 +107,22 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnEditor.setOnClickListener {
             startActivity(Intent(this, VideoEditorActivity::class.java))
+        }
+
+        updateModeUI()
+    }
+
+    private fun updateModeUI() {
+        if (isVideoMode) {
+            binding.modeVideo.setBackgroundResource(R.drawable.mode_selected_bg)
+            binding.modeVideo.setTextColor(android.graphics.Color.WHITE)
+            binding.modePhoto.setBackgroundResource(0)
+            binding.modePhoto.setTextColor(android.graphics.Color.parseColor("#AAAAAA"))
+        } else {
+            binding.modePhoto.setBackgroundResource(R.drawable.mode_selected_bg)
+            binding.modePhoto.setTextColor(android.graphics.Color.WHITE)
+            binding.modeVideo.setBackgroundResource(0)
+            binding.modeVideo.setTextColor(android.graphics.Color.parseColor("#AAAAAA"))
         }
     }
 
@@ -178,12 +212,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun takePhoto() {
         val imageCapture = imageCapture ?: return
-
-        val photoFile = File(
-            getExternalFilesDir(null),
-            "photo_${System.currentTimeMillis()}.jpg"
-        )
-
+        val photoFile = File(getExternalFilesDir(null), "photo_${System.currentTimeMillis()}.jpg")
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
         imageCapture.takePicture(
@@ -191,20 +220,11 @@ class MainActivity : AppCompatActivity() {
             ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "照片已儲存",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this@MainActivity, "照片已儲存", Toast.LENGTH_SHORT).show()
                 }
-
                 override fun onError(exception: ImageCaptureException) {
                     Log.e("SportsBallTracker", "Photo capture failed", exception)
-                    Toast.makeText(
-                        this@MainActivity,
-                        "拍照失敗",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this@MainActivity, "拍照失敗", Toast.LENGTH_SHORT).show()
                 }
             }
         )
@@ -248,12 +268,12 @@ class MainActivity : AppCompatActivity() {
                 when (event) {
                     is VideoRecordEvent.Start -> {
                         isRecording = true
-                        binding.btnRecord.text = "停止錄影"
+                        binding.shutterButton.setBackgroundResource(R.drawable.shutter_recording)
                         Toast.makeText(this, "開始錄影", Toast.LENGTH_SHORT).show()
                     }
                     is VideoRecordEvent.Finalize -> {
                         isRecording = false
-                        binding.btnRecord.text = "開始錄影"
+                        binding.shutterButton.setBackgroundResource(R.drawable.shutter_circle)
                         if (!event.hasError()) {
                             Toast.makeText(this, "錄影已儲存", Toast.LENGTH_SHORT).show()
                         }
