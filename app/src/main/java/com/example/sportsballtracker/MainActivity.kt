@@ -1,6 +1,7 @@
 package com.example.sportsballtracker
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -10,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.*
-import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import com.example.sportsballtracker.databinding.ActivityMainBinding
 import com.google.mlkit.vision.common.InputImage
@@ -24,8 +24,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var cameraExecutor: ExecutorService
     private var cameraProvider: ProcessCameraProvider? = null
-    private var camera: Camera? = null
     private var isBackCamera = true
+    private var isDualMode = false
     private var isRecording = false
     private var videoCapture: VideoCapture<Recorder>? = null
     private var recording: Recording? = null
@@ -70,12 +70,19 @@ class MainActivity : AppCompatActivity() {
             startCamera()
         }
 
+        binding.btnDualCamera.setOnClickListener {
+            isDualMode = !isDualMode
+            binding.btnDualCamera.text = if (isDualMode) "單鏡頭" else "雙鏡頭"
+            binding.previewViewFront.visibility = if (isDualMode) android.view.View.VISIBLE else android.view.View.GONE
+            startCamera()
+        }
+
         binding.btnRecord.setOnClickListener {
-            if (isRecording) {
-                stopRecording()
-            } else {
-                startRecording()
-            }
+            if (isRecording) stopRecording() else startRecording()
+        }
+
+        binding.btnEditor.setOnClickListener {
+            startActivity(Intent(this, VideoEditorActivity::class.java))
         }
     }
 
@@ -111,16 +118,51 @@ class MainActivity : AppCompatActivity() {
                 it.setAnalyzer(cameraExecutor, ObjectAnalyzer())
             }
 
-        val cameraSelector = if (isBackCamera) CameraSelector.DEFAULT_BACK_CAMERA
-        else CameraSelector.DEFAULT_FRONT_CAMERA
-
         try {
-            camera = cameraProvider.bindToLifecycle(
-                this, cameraSelector, preview, imageAnalysis, videoCapture
-            )
+            if (isDualMode && cameraProvider.availableConcurrentCameraInfos.isNotEmpty()) {
+                val concurrentInfos = cameraProvider.availableConcurrentCameraInfos.firstOrNull()
+                if (concurrentInfos != null && concurrentInfos.size >= 2) {
+                    val backSelector = concurrentInfos.first { it.lensFacing == CameraSelector.LENS_FACING_BACK }.cameraSelector
+                    val frontSelector = concurrentInfos.first { it.lensFacing == CameraSelector.LENS_FACING_FRONT }.cameraSelector
+
+                    val backPreview = Preview.Builder().build().also {
+                        it.setSurfaceProvider(binding.previewView.surfaceProvider)
+                    }
+                    val frontPreview = Preview.Builder().build().also {
+                        it.setSurfaceProvider(binding.previewViewFront.surfaceProvider)
+                    }
+
+                    val useCaseGroup = UseCaseGroup.Builder()
+                        .addUseCase(backPreview)
+                        .addUseCase(videoCapture!!)
+                        .addUseCase(imageAnalysis)
+                        .build()
+
+                    val backConfig = ConcurrentCamera.SingleCameraConfig(backSelector, useCaseGroup, this)
+                    val frontConfig = ConcurrentCamera.SingleCameraConfig(frontSelector, UseCaseGroup.Builder().addUseCase(frontPreview).build(), this)
+
+                    cameraProvider.bindToLifecycle(listOf(backConfig, frontConfig))
+                    binding.statusText.text = "雙鏡頭模式啟用"
+                } else {
+                    fallbackToSingleCamera(cameraProvider, preview, imageAnalysis)
+                }
+            } else {
+                fallbackToSingleCamera(cameraProvider, preview, imageAnalysis)
+            }
         } catch (e: Exception) {
             Log.e("SportsBallTracker", "Camera bind failed", e)
+            Toast.makeText(this, "雙鏡頭不支援，已切換單鏡頭", Toast.LENGTH_SHORT).show()
+            isDualMode = false
+            binding.btnDualCamera.text = "雙鏡頭"
+            binding.previewViewFront.visibility = android.view.View.GONE
+            fallbackToSingleCamera(cameraProvider, preview, imageAnalysis)
         }
+    }
+
+    private fun fallbackToSingleCamera(provider: ProcessCameraProvider, preview: Preview, analysis: ImageAnalysis) {
+        val selector = if (isBackCamera) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
+        provider.bindToLifecycle(this, selector, preview, analysis, videoCapture)
+        binding.statusText.text = if (isBackCamera) "後鏡頭" else "前鏡頭"
     }
 
     private inner class ObjectAnalyzer : ImageAnalysis.Analyzer {
