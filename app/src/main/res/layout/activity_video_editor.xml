@@ -3,17 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000">
+    android:background="#121212">
 
     <androidx.media3.ui.PlayerView
         android:id="@+id/playerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/controls"
+        app:layout_constraintBottom_toTopOf="@id/fileListCard"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:use_controller="true" />
+        app:use_controller="true"
+        app:show_buffering="when_playing" />
 
     <TextView
         android:id="@+id/statusText"
@@ -21,11 +22,39 @@
         android:layout_height="wrap_content"
         android:text="後期製作"
         android:textColor="#FFFFFF"
-        android:background="#80000000"
-        android:padding="8dp"
+        android:textSize="14sp"
+        android:background="#CC000000"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_margin="16dp" />
+        android:layout_margin="12dp" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/fileListCard"
+        android:layout_width="0dp"
+        android:layout_height="120dp"
+        android:layout_margin="8dp"
+        app:cardBackgroundColor="#1E1E1E"
+        app:cardCornerRadius="12dp"
+        app:layout_constraintBottom_toTopOf="@id/controls"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:id="@+id/fileListContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="8dp" />
+        </HorizontalScrollView>
+    </com.google.android.material.card.MaterialCardView>
 
     <LinearLayout
         android:id="@+id/controls"
@@ -33,28 +62,35 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:padding="16dp"
+        android:padding="12dp"
+        android:background="#1E1E1E"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnTrim"
-            android:layout_width="wrap_content"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="裁切"
-            android:layout_marginEnd="8dp" />
+            android:layout_marginEnd="6dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnMerge"
-            android:layout_width="wrap_content"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="合併"
-            android:layout_marginEnd="8dp" />
+            android:layout_marginEnd="6dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnExport"
-            android:layout_width="wrap_content"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="導出" />
+            android:layout_weight="1"
+            android:text="匯出到相簿" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
